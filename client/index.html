@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+  <meta charset="UTF-8">
+  <title>BucketList</title>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+  <script>
+    var myApp = angular.module("myApp", ["ngRoute"]);
+
+    myApp.config(function($routeProvider){
+      $routeProvider
+      .when('/', {
+        templateUrl: 'partials/login.html'
+      })
+      .when('/dashboard/:id', {
+        templateUrl: 'partials/dashboard.html'
+      })
+      .when('/user/:id', {
+        templateUrl: 'partials/show.html'
+      })
+      .otherwise({
+        redirectTo: '/'
+      })
+    })//End of config 
+    //Login Factory 
+
+    myApp.factory('loginFactory', function($http){
+      var factory = {}
+      var users = [];
+  
+      factory.current_user = function(id, callback){
+        $http.get('/users/'+id).success(function(output){
+          callback(output);
+        })
+      }
+
+      factory.index = function( callback){
+        $http.get('/users').success(function(output){
+          users = output 
+          callback(users)
+        })
+      }
+
+      factory.create = function(info, callback){
+        $http.post('/login', info).success(function (output){
+          current_user = output; 
+          users.push(output);
+          callback(output);
+        })
+      }
+      return factory;  
+    })
+
+
+    //Bucket List Factory 
+
+    myApp.factory("bucketListFactory", function($http){
+      var factory = {};
+      var bucketlists = []; 
+
+      factory.index = function(id, callback){
+        $http.get('/bucketlists/'+ id).success(function(output){
+          console.log(output)
+          bucketlists = output;
+          callback(bucketlists);
+        })
+      }
+      factory.create = function(info, callback){
+        $http.post('/bucketlists', info).success(function(output){
+         console.log("create factory bucketlists")
+          bucketlists.push(output);
+          callback(bucketlists); 
+        })
+      }
+
+      factory.update = function(id, callback){
+        $http.post('/bucketlists/' + id).success(function(output){
+          console.log("update bucket factory");
+          callback(output);
+        })
+      }
+    
+      return factory;
+    })
+
+    //LOGIN CONTROLLER
+    myApp.controller('loginsController', function($scope, loginFactory, $location, $routeParams){
+      
+      $scope.create = function() {
+        console.log($scope.newLogin )
+        loginFactory.create($scope.newLogin, function(data){
+          $scope.logins = data;
+                    
+          $location.path('/dashboard/' + $scope.logins._id)
+        })
+        $scope.newLogin = {};
+      }
+    })//END OF LOGIN CONTROLLER
+
+    //BucketList controller 
+    myApp.controller('BucketlistsController', function($scope, loginFactory, bucketListFactory, $routeParams){
+
+      $scope.logins = $routeParams;
+      //grab current user 
+      loginFactory.current_user($scope.logins.id, function(data){
+        $scope.current_user = data;
+      });
+      //grab bucketlists
+      bucketListFactory.index($scope.logins.id, function(bucketlists){
+        $scope.bucketlists = bucketlists
+      });
+      //grab all users 
+      loginFactory.index(function(users){
+        $scope.users = users;  
+      });
+
+      $scope.create = function (){
+        $scope.newBucketList._user = $scope.current_user; 
+        bucketListFactory.create($scope.newBucketList, function() {
+          bucketListFactory.index($scope.logins.id, function(bucketlists){
+            console.log(bucketlists)
+            
+            $scope.bucketlists = bucketlists; 
+
+          })
+        })
+        $scope.newBucketList = null; 
+      }
+
+      $scope.update = function(bucketlist){
+        bucketListFactory.update(bucketlist._id, function(){
+          bucketListFactory.index($scope.logins.id, function(bucketlists){
+            $scope.bucketlists = bucketlists; 
+          })
+        })
+      }
+    })
+
+    myApp.controller("Userscontroller", function($scope, loginFactory, bucketListFactory, $location){
+      
+    
+    var get_user= $location.path().split('/')[2] ; 
+    
+    bucketListFactory.index(get_user, function(bucketlists){
+        $scope.bucketlists = bucketlists
+        console.log($scope.bucketlists)
+      });
+})
+  </script>    
+</head>
+<body ng-app="myApp">
+  <div ng-view="">
+  </div>
+</body>
+</html>

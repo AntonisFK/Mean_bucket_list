@@ -1,0 +1,65 @@
+<div class="wrapper" ng-controller="BucketlistsController">
+  {{current_user.name}}
+  <label for="form">Make a bucket List
+  <form>
+    <input type="text" placeholder="Title" ng-model="newBucketList.title">
+    <input type="text" placeholder="Description" ng-model="newBucketList.description">
+    <label for="Tag">Tag someone!!
+    <select name="Tag" ng-model="newBucketList.partner" ng-options= "user.name for user in users | filter:{name: '!' + current_user.name}" ></select></label>
+    
+    
+    <input type="submit" ng-click="create()">
+  </form></label>
+  
+
+  <h3>I want to do .....</h3>
+  
+  <div id="to do list">
+   <table>
+     <tr>
+       <th>Posted by</th>
+       <th>Title</th>
+       <th>Description</th>
+       <th>Partner</th>
+       <th>Done?</th>
+     </tr>
+    <tr ng-repeat="bucketlist in bucketlists | filter: bucketlist.finisehd = false ">
+      <td>{{bucketlist._user.name}}</td>
+      <td>{{bucketlist.title}}</td>
+      <td>{{bucketlist.description}}</td>
+      <td>{{bucketlist.partner.name}}</td>
+      <td>{{bucketlist.finished}}</td>
+      <td><form>
+        <input type="checkbox"  ng-click="update(bucketlist)">
+      </form></td>
+    </tr>
+  </table>
+  </div>
+  <div class="finished">
+    <h3>What you have completed</h3>
+
+   <table>
+     <tr>
+       <th>Posted by</th>
+       <th>Title</th>
+       <th>Description</th>
+       <th>Partner</th>
+  
+     </tr>
+    <tr ng-repeat="bucketlist in bucketlists | filter: bucketlist.finisehd = true ">
+      <td>{{bucketlist._user.name}}</td>
+      <td>{{bucketlist.title}}</td>
+      <td>{{bucketlist.description}}</td>
+      <td>{{bucketlist.partner.name}}</td>
+      
+    </tr>
+    </table>
+    
+    <div id="user list">
+      <ul>
+        <li ng-repeat="user in users"> <a href="#/user/{{user._id}}">{{user.name}}</a></li>
+      </ul>
+    </div>
+
+</div>
+

@@ -1,0 +1,31 @@
+<div class="wrapper" ng-controller="Userscontroller">
+  <table>
+     <tr>
+       <th>Posted by</th>
+       <th>Title</th>
+       <th>Description</th>
+       <th>Partner</th>
+       <th>Done?</th>
+     </tr>
+    <tr ng-repeat="bucketlist in bucketlists | filter: bucketlist.finisehd = false ">
+      <td>{{bucketlist._user.name}}</td>
+      <td>{{bucketlist.title}}</td>
+      <td>{{bucketlist.description}}</td>
+      <td>{{bucketlist.partner.name}}</td>
+      <td>{{bucketlist.finished}}</td>
+      
+    </tr>
+  </table>
+  </div>
+  <div class="finished">
+    <h3>What you have completed</h3>
+
+   <table>
+     <tr>
+       <th>Posted by</th>
+       <th>Title</th>
+       <th>Description</th>
+       <th>Partner</th>
+  
+     </tr>
+</div>
